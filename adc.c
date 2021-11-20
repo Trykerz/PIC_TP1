@@ -27,26 +27,44 @@ void init_led(void){
     //rajouter les autres led je ne sais plus ou elles sont connecté
 }
 
-void init_uart( unsigned int baud){
+void init_uart(){
+// calcul de la valeur de spbrg: (Fosc-baud*16)/baud*16
+    
+TXSTA1 = 0; // Reset USART registers to POR state
+RCSTA1 = 0;
 
- TXSTA1 = 0; // Reset USART registers to POR state
- RCSTA1 = 0;
- //calcul bad-rate 
- int N;
- N = ((10000000 - baud*64)/(baud*64));
- SPBRG1 = N; //init baudrate
- TXSTA1bits.BRGH = 0; //low speed
- BAUDCON1bits.BRG16 = 0; //8bit asynchronous 
- TXSTA1bits.SYNC = 0; //asynchronous mode
- RCSTA1bits.SPEN = 1; //enble eusart and enable TX as output
- 
- 
- RCSTA1bits.CREN = 1; //enble receiver
- RCSTA1bits.RX9 = 0; //8bit reception
- ANSC7 = 0; /// Pour le PIC18f45k22
- ANSC6 = 0; /// Pour le PIC18f45k22
+TRISCbits.TRISC6 = 1; //TX1 //voir datasheet pour expliquer
+TRISCbits.TRISC7 = 1; //RX1
 
- TXSTA1bits.TXEN = 1; //enble transmitter
- TRISCbits.TRISC6 = 1; //tx
- TRISCbits.TRISC7 = 1; //rx
- }
+
+TXSTA1bits.BRGH = 1; //high speed
+BAUDCON1bits.BRG16 = 0; //8bit asynchronous
+
+ANSC7 = 0; /// Pour le PIC18f45k22
+ANSC6 = 0; /// Pour le PIC18f45k22
+SPBRG1 = 10; //baud rate vaut : Fosc/[(SPBRG1 + 1)* 16] = 57000 bps
+
+RCSTA1bits.CREN = 1; //enble receiver
+RCSTA1bits.RX9 = 1; //enable 9-bit reception
+RCSTA1bits.ADDEN = 1; //Enables address detection, enable interrupt and load the receive buffer when RSR<8> is set (RX9 set)
+
+TXSTA1bits.TX9 = 1; //enable 9-bit transmission
+TXSTA1bits.TXEN = 1; //enble transmitter
+TXSTA1bits.SYNC = 0; //asynchronous mode
+RCSTA1bits.SPEN = 1; //serial port enable bit
+
+
+}  
+
+void write_uart (unsigned char *carac){
+    while(*carac){
+        while(!TXSTA1.TRMT){ //on attend que le buffer soit vvide donc que le message d'avant soit envoye
+            TXREG1 = *carac++;
+        }
+    }
+} 
+ 
+char read_uart (){
+    while(!PIR1bits.RC1IF);
+    return RCREG1;
+}

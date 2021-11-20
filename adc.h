@@ -19,3 +19,5 @@ float conv();
 void init_led(void);
 
 void init_uart( unsigned int baud);
+void write_uart (unsigned char *carac);
+char read_uart ();
