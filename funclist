@@ -1,0 +1,11 @@
+_echo: CODE, 320 0 30
+_main: CODE, 146 0 92
+_init_uart: CODE, 238 0 44
+_read_echo: CODE, 388 0 14
+__initialization: CODE, 402 0 6
+_init_timer: CODE, 350 0 24
+_isr: CODE, 8 0 134
+_init_rfid: CODE, 282 0 38
+_write_echo: CODE, 414 0 8
+_write_uart: CODE, 374 0 14
+Total: 404
